@@ -1,12 +1,26 @@
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { prompt } = req.body;
+  const { prompt } = req.body || {};
 
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt é obrigatório' });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) {
+    console.error('ANTHROPIC_API_KEY não encontrada');
+    return res.status(500).json({ error: 'Chave de API não configurada' });
   }
 
   try {
@@ -14,7 +28,7 @@ export default async function handler(req, res) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01'
       },
       body: JSON.stringify({
@@ -25,16 +39,19 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+    console.log('Anthropic status:', response.status);
 
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
+    if (!response.ok || data.error) {
+      const errMsg = data.error?.message || JSON.stringify(data);
+      console.error('Anthropic error:', errMsg);
+      return res.status(500).json({ error: errMsg });
     }
 
     const text = data.content?.[0]?.text || '';
     return res.status(200).json({ result: text });
 
   } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Erro interno ao chamar a IA' });
+    console.error('Fetch error:', err.message);
+    return res.status(500).json({ error: err.message });
   }
 }
