@@ -137,6 +137,16 @@
   .bullet-icon svg { width: 11px; height: 11px; fill: white; }
 
   /* ===== BUTTONS ===== */
+  .btn-back {
+    padding: 18px 16px;
+    background: transparent; color: var(--gray-400);
+    border: 2px solid var(--gray-200); border-radius: var(--radius);
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.2s ease; white-space: nowrap;
+    min-width: 90px;
+  }
+  .btn-back:hover { border-color: var(--gray-400); color: var(--gray-600); }
+
   .btn-primary {
     width: 100%; padding: 18px;
     background: var(--orange); color: white;
@@ -458,7 +468,10 @@
     <div class="quiz-title" id="q-title"></div>
     <div class="quiz-support" id="q-support"></div>
     <div class="options-grid" id="q-options"></div>
-    <button class="btn-primary" id="btn-next" disabled onclick="nextQuestion()">Continuar →</button>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="btn-back" id="btn-back" onclick="prevQuestion()">← Voltar</button>
+      <button class="btn-primary" id="btn-next" style="flex:1" onclick="nextQuestion()">Continuar →</button>
+    </div>
     <div class="section-gap"></div>
   </div>
 </div>
@@ -702,7 +715,10 @@ function renderQuestion() {
       document.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedOption = opt;
+      state.respostas[perguntas[currentQ].key] = opt;
       document.getElementById('btn-next').disabled = false;
+      // Avança automaticamente após 350ms
+      setTimeout(() => { nextQuestion(); }, 350);
     });
     grid.appendChild(btn);
   });
@@ -710,6 +726,7 @@ function renderQuestion() {
   if (!state.respostas[q.key]) {
     selectedOption = null;
     document.getElementById('btn-next').disabled = true;
+  document.getElementById('btn-back').style.display = currentQ === 0 ? 'none' : 'block';
   }
 }
 
@@ -722,6 +739,15 @@ function nextQuestion() {
   } else {
     renderQuestion();
   }
+}
+
+function prevQuestion() {
+  if (currentQ === 0) {
+    goTo('screen-lead');
+    return;
+  }
+  currentQ--;
+  renderQuestion();
 }
 
 // ===== DADOS =====
