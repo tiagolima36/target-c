@@ -908,11 +908,22 @@ Lista de 8 ações em ordem para colocar a campanha no ar.
       body: JSON.stringify({ prompt })
     });
 
-    const data = await response.json();
-    const text = data.result || 'Erro ao gerar campanha. Tente novamente.';
-    state.resultText = text;
+    let data;
+    try {
+      data = await response.json();
+    } catch(e) {
+      throw new Error('Resposta inválida do servidor. Tente novamente.');
+    }
 
-    document.getElementById('loading-fill').style.width = '100%';
+    if (!response.ok || data.error) {
+      throw new Error(data.error || 'Erro ao gerar campanha.');
+    }
+
+    const text = data.result || '';
+    if (!text) throw new Error('Campanha vazia. Tente novamente.');
+
+    state.resultText = text;
+    // loading completo
 
     setTimeout(() => {
       renderResult(text);
@@ -922,7 +933,7 @@ Lista de 8 ações em ordem para colocar a campanha no ar.
 
   } catch (err) {
     console.error(err);
-    alert('Erro ao conectar com a IA. Verifique sua conexão e tente novamente.');
+    alert('Não foi possível gerar a campanha: ' + err.message + '\n\nTente novamente.');
     goTo('screen-dados');
   }
 }
@@ -991,7 +1002,7 @@ function resetApp() {
   selectedOption = null;
   document.getElementById('lead-nome').value = '';
   document.getElementById('lead-whatsapp').value = '';
-  document.getElementById('loading-fill').style.width = '0%';
+  // loading reset
   document.getElementById('result-content').textContent = 'Gerando...';
 }
 </script>
