@@ -211,6 +211,9 @@
     cursor: pointer; transition: all 0.18s ease;
     background: white;
     text-align: left; line-height: 1.4;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+    -webkit-user-select: none;
   }
   .option-card:hover { border-color: var(--orange-mid); background: var(--orange-light); }
   .option-card.selected {
@@ -693,6 +696,10 @@ function submitLead() {
 // ===== QUIZ =====
 function renderQuestion() {
   const q = perguntas[currentQ];
+
+  // Scroll pro topo sempre que trocar de pergunta
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
   document.getElementById('q-label').textContent = `Pergunta ${currentQ + 1} de ${perguntas.length}`;
   const pct = Math.round((currentQ / perguntas.length) * 100);
   document.getElementById('q-pct').textContent = pct + '%';
@@ -704,17 +711,23 @@ function renderQuestion() {
   grid.innerHTML = '';
   selectedOption = null;
 
+  // Bloquear cliques por 500ms para evitar ghost tap do iOS
+  grid.style.pointerEvents = 'none';
+  setTimeout(() => { grid.style.pointerEvents = 'auto'; }, 500);
+
   q.options.forEach((opt) => {
     const btn = document.createElement('button');
     btn.className = 'option-card';
     btn.textContent = opt;
     btn.addEventListener('click', () => {
+      if (selectedOption) return; // Evitar duplo clique
       document.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedOption = opt;
       state.respostas[perguntas[currentQ].key] = opt;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setTimeout(() => { nextQuestion(); }, 420);
+      // Bloquear novos cliques imediatamente
+      grid.style.pointerEvents = 'none';
+      setTimeout(() => { nextQuestion(); }, 380);
     });
     grid.appendChild(btn);
   });
