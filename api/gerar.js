@@ -57,10 +57,12 @@ module.exports = async function handler(req, res) {
             objetivo: lead.objetivo || '',
             produto_tipo: lead.produto_tipo || '',
             tipo_cliente: lead.tipo_cliente || '',
+            faturamento_atual: lead.faturamento_atual || '',
             trava: lead.trava || '',
             oferta: lead.oferta || '',
             canal: lead.canal || '',
             prazo: lead.prazo || '',
+            objetivo_faturamento: lead.objetivo_faturamento || '',
             tom: lead.tom || ''
           })
         });
