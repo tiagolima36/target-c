@@ -141,7 +141,7 @@
 <div class="screen" id="screen-quiz">
   <div class="topbar"><span class="topbar-logo">Campanha 24h IA</span></div>
   <div class="progress-wrap">
-    <div class="progress-label"><span id="q-label">Pergunta 1 de 8</span><span id="q-pct">0%</span></div>
+    <div class="progress-label"><span id="q-label">Pergunta 1 de 10</span><span id="q-pct">0%</span></div>
     <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
   </div>
   <div class="container">
@@ -219,22 +219,214 @@
 
 <script>
 const state={lead:{nome:'',whatsapp:''},respostas:{},dados:{},resultText:''};
-const perguntas=[{key:'objetivo',title:'Qual é o principal objetivo da sua campanha de Dia dos Namorados?',support:'Sua resposta ajuda a IA a montar a campanha com o foco certo.',options:['Zerar estoque parado','Vender mais sem depender só de desconto','Fazer clientes antigas comprarem de novo','Vender kits/combos com mais lucro','Fazer uma campanha forte mesmo em cima da hora']},{key:'produto_tipo',title:'Qual produto você quer vender nessa campanha?',support:'O produto certo muda tudo. A campanha funciona melhor quando escolhe o produto com maior chance de desejo imediato.',options:['Produto parado no estoque','Produto mais vendido da loja','Produto com maior margem','Kit ou combo especial','Ainda não sei, quero que a IA me ajude a escolher']},{key:'tipo_cliente',title:'Quem você mais quer atrair nessa campanha?',support:'A campanha muda completamente dependendo de quem vai comprar.',options:['Mulheres comprando para si mesmas','Mulheres comprando presente','Homens comprando presente','Clientes antigas da loja','Pessoas que já perguntaram, mas nunca compraram','Revendedoras / clientes de atacado']},{key:'trava',title:'O que mais trava suas vendas em datas como Dia dos Namorados?',support:'Sua resposta ajuda a IA a atacar o ponto que está fazendo sua loja perder vendas.',options:['Eu posto, mas pouca gente chama','As pessoas perguntam preço e somem','Eu dependo muito de desconto','Tenho produto, mas não sei montar campanha','Deixo tudo para cima da hora','Não sei o que falar nos stories e WhatsApp']},{key:'oferta',title:'Qual tipo de oferta você quer usar nessa campanha?',support:'A oferta não precisa ser só baixar preço. Um kit bem montado ou um brinde simples pode vender mais do que desconto.',options:['Desconto por tempo limitado','Kit / combo especial','Brinde para quem comprar até uma data','Condição especial no WhatsApp','Frete / entrega facilitada','Quero vender sem desconto']},{key:'canal',title:'Onde você quer vender mais com essa campanha?',support:'A IA vai organizar o caminho certo para cada canal.',options:['Instagram','WhatsApp','Grupo de WhatsApp','Site','Loja física','Todos, mas preciso organizar a ordem certa']},{key:'prazo',title:'Quando você quer colocar essa campanha no ar?',support:'Quanto menos tempo, mais simples precisa ser a campanha. A IA vai adaptar o plano.',options:['Hoje','Amanhã','Em até 24 horas','Em até 3 dias','Quero deixar pronta para a próxima data comercial']},{key:'tom',title:'Qual tom combina mais com sua loja?',support:'Isso ajuda a IA a escrever mensagens que parecem da sua loja, e não um texto genérico.',options:['Direto e vendedor','Romântico e emocional','Elegante e premium','Divertido e leve','Popular e próximo','Provocativo e chamativo']}];
+
+// ===== 10 PERGUNTAS =====
+// Posição 4 = faturamento_atual (depois de tipo_cliente)
+// Posição 9 = objetivo_faturamento (depois de prazo, antes de tom)
+const perguntas=[
+  {
+    key:'objetivo',
+    title:'Qual é o principal objetivo da sua campanha de Dia dos Namorados?',
+    support:'Sua resposta ajuda a IA a montar a campanha com o foco certo.',
+    options:['Zerar estoque parado','Vender mais sem depender só de desconto','Fazer clientes antigas comprarem de novo','Vender kits/combos com mais lucro','Fazer uma campanha forte mesmo em cima da hora']
+  },
+  {
+    key:'produto_tipo',
+    title:'Qual produto você quer vender nessa campanha?',
+    support:'O produto certo muda tudo. A campanha funciona melhor quando escolhe o produto com maior chance de desejo imediato.',
+    options:['Produto parado no estoque','Produto mais vendido da loja','Produto com maior margem','Kit ou combo especial','Ainda não sei, quero que a IA me ajude a escolher']
+  },
+  {
+    key:'tipo_cliente',
+    title:'Quem você mais quer atrair nessa campanha?',
+    support:'A campanha muda completamente dependendo de quem vai comprar.',
+    options:['Mulheres comprando para si mesmas','Mulheres comprando presente','Homens comprando presente','Clientes antigas da loja','Pessoas que já perguntaram, mas nunca compraram','Revendedoras / clientes de atacado']
+  },
+  {
+    key:'faturamento_atual',
+    title:'Quanto sua loja fatura hoje por mês?',
+    support:'Faturamento atual — isso nos ajuda a entender o tamanho do seu negócio e o que faz mais sentido pra você agora.',
+    options:[
+      'Ainda não vendo / estou começando',
+      'Faturamento atual: até R$3.000/mês',
+      'Faturamento atual: R$3.000 a R$10.000/mês',
+      'Faturamento atual: R$10.000 a R$30.000/mês',
+      'Faturamento atual: acima de R$30.000/mês'
+    ]
+  },
+  {
+    key:'trava',
+    title:'O que mais trava suas vendas em datas como Dia dos Namorados?',
+    support:'Sua resposta ajuda a IA a atacar o ponto que está fazendo sua loja perder vendas.',
+    options:['Eu posto, mas pouca gente chama','As pessoas perguntam preço e somem','Eu dependo muito de desconto','Tenho produto, mas não sei montar campanha','Deixo tudo para cima da hora','Não sei o que falar nos stories e WhatsApp']
+  },
+  {
+    key:'oferta',
+    title:'Qual tipo de oferta você quer usar nessa campanha?',
+    support:'A oferta não precisa ser só baixar preço. Um kit bem montado ou um brinde simples pode vender mais do que desconto.',
+    options:['Desconto por tempo limitado','Kit / combo especial','Brinde para quem comprar até uma data','Condição especial no WhatsApp','Frete / entrega facilitada','Quero vender sem desconto']
+  },
+  {
+    key:'canal',
+    title:'Onde você quer vender mais com essa campanha?',
+    support:'A IA vai organizar o caminho certo para cada canal.',
+    options:['Instagram','WhatsApp','Grupo de WhatsApp','Site','Loja física','Todos, mas preciso organizar a ordem certa']
+  },
+  {
+    key:'prazo',
+    title:'Quando você quer colocar essa campanha no ar?',
+    support:'Quanto menos tempo, mais simples precisa ser a campanha. A IA vai adaptar o plano.',
+    options:['Hoje','Amanhã','Em até 24 horas','Em até 3 dias','Quero deixar pronta para a próxima data comercial']
+  },
+  {
+    key:'objetivo_faturamento',
+    title:'Qual é o seu objetivo de faturamento para a loja?',
+    support:'Objetivo de faturamento — onde você quer chegar. Isso nos ajuda a entender sua ambição e o que você precisa pra crescer.',
+    options:[
+      'Objetivo: chegar a R$3.000/mês',
+      'Objetivo: chegar a R$10.000/mês',
+      'Objetivo: chegar a R$30.000/mês',
+      'Objetivo: passar de R$30.000/mês',
+      'Objetivo: escalar além de R$100.000/mês'
+    ]
+  },
+  {
+    key:'tom',
+    title:'Qual tom combina mais com sua loja?',
+    support:'Isso ajuda a IA a escrever mensagens que parecem da sua loja, e não um texto genérico.',
+    options:['Direto e vendedor','Romântico e emocional','Elegante e premium','Divertido e leve','Popular e próximo','Provocativo e chamativo']
+  }
+];
+
 let currentQ=0,selectedOption=null;
+
 function goTo(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+
 function submitLead(){const nome=document.getElementById('lead-nome').value.trim();const wpp=document.getElementById('lead-whatsapp').value.trim();if(!nome){alert('Por favor, informe seu nome.');return;}if(!wpp){alert('Por favor, informe seu WhatsApp.');return;}state.lead.nome=nome;state.lead.whatsapp=wpp;currentQ=0;renderQuestion();goTo('screen-quiz');}
-function renderQuestion(){const q=perguntas[currentQ];window.scrollTo({top:0,behavior:'smooth'});document.getElementById('q-label').textContent=`Pergunta ${currentQ+1} de ${perguntas.length}`;const pct=Math.round((currentQ/perguntas.length)*100);document.getElementById('q-pct').textContent=pct+'%';document.getElementById('progress-fill').style.width=pct+'%';document.getElementById('q-title').textContent=q.title;document.getElementById('q-support').textContent=q.support;const grid=document.getElementById('q-options');grid.innerHTML='';selectedOption=null;grid.style.pointerEvents='none';setTimeout(()=>{grid.style.pointerEvents='auto';},500);const qIndex=currentQ;const qKey=q.key;q.options.forEach((opt)=>{const btn=document.createElement('button');btn.className='option-card';btn.textContent=opt;btn.addEventListener('click',()=>{if(selectedOption)return;document.querySelectorAll('.option-card').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');selectedOption=opt;state.respostas[qKey]=opt;grid.style.pointerEvents='none';setTimeout(()=>{nextQuestion(qIndex,opt);},380);});grid.appendChild(btn);});document.getElementById('btn-next').disabled=false;document.getElementById('btn-back').style.display=currentQ===0?'none':'block';}
+
+function renderQuestion(){
+  const q=perguntas[currentQ];
+  window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('q-label').textContent=`Pergunta ${currentQ+1} de ${perguntas.length}`;
+  const pct=Math.round((currentQ/perguntas.length)*100);
+  document.getElementById('q-pct').textContent=pct+'%';
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('q-title').textContent=q.title;
+  document.getElementById('q-support').textContent=q.support;
+  const grid=document.getElementById('q-options');
+  grid.innerHTML='';
+  selectedOption=null;
+  grid.style.pointerEvents='none';
+  setTimeout(()=>{grid.style.pointerEvents='auto';},500);
+  const qIndex=currentQ;
+  const qKey=q.key;
+  q.options.forEach((opt)=>{
+    const btn=document.createElement('button');
+    btn.className='option-card';
+    btn.textContent=opt;
+    btn.addEventListener('click',()=>{
+      if(selectedOption)return;
+      document.querySelectorAll('.option-card').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedOption=opt;
+      state.respostas[qKey]=opt;
+      grid.style.pointerEvents='none';
+      setTimeout(()=>{nextQuestion(qIndex,opt);},380);
+    });
+    grid.appendChild(btn);
+  });
+  document.getElementById('btn-next').disabled=false;
+  document.getElementById('btn-back').style.display=currentQ===0?'none':'block';
+}
+
 function nextQuestion(qIdx,answer){const idx=(qIdx!==undefined)?qIdx:currentQ;const ans=answer||selectedOption;if(!ans)return;state.respostas[perguntas[idx].key]=ans;currentQ=idx+1;if(currentQ>=perguntas.length){goTo('screen-dados');}else{renderQuestion();}}
+
 function prevQuestion(){if(currentQ===0){goTo('screen-lead');return;}currentQ--;renderQuestion();}
-function submitDados(){const nomeLoja=document.getElementById('nome-loja').value.trim();const segmento=document.getElementById('segmento').value.trim();const produto=document.getElementById('produto-principal').value.trim();const preco=document.getElementById('preco').value.trim();const cidade=document.getElementById('cidade').value.trim();const canais=document.getElementById('canais').value.trim();if(!nomeLoja||!segmento||!produto||!preco||!cidade||!canais){alert('Por favor, preencha os campos obrigatórios.');return;}state.dados={nome_loja:nomeLoja,segmento,produto_principal:produto,preco,cidade_estado:cidade,canais_venda:canais,condicao_especial:document.getElementById('condicao').value.trim()||'Nenhuma informada',instagram:document.getElementById('instagram').value.trim()||'Não informado',observacoes:document.getElementById('obs').value.trim()||'Nenhuma'};goTo('screen-loading');startLoading();gerarCampanha();}
+
+function submitDados(){
+  const nomeLoja=document.getElementById('nome-loja').value.trim();
+  const segmento=document.getElementById('segmento').value.trim();
+  const produto=document.getElementById('produto-principal').value.trim();
+  const preco=document.getElementById('preco').value.trim();
+  const cidade=document.getElementById('cidade').value.trim();
+  const canais=document.getElementById('canais').value.trim();
+  if(!nomeLoja||!segmento||!produto||!preco||!cidade||!canais){alert('Por favor, preencha os campos obrigatórios.');return;}
+  state.dados={nome_loja:nomeLoja,segmento,produto_principal:produto,preco,cidade_estado:cidade,canais_venda:canais,condicao_especial:document.getElementById('condicao').value.trim()||'Nenhuma informada',instagram:document.getElementById('instagram').value.trim()||'Não informado',observacoes:document.getElementById('obs').value.trim()||'Nenhuma'};
+  goTo('screen-loading');startLoading();gerarCampanha();
+}
+
 const loadingSteps=['Lendo as respostas da sua loja...','Escolhendo o melhor ângulo de venda...','Montando a oferta ideal para o Dia dos Namorados...','Escrevendo a mensagem pro cliente que parou de responder...','Criando sua sequência de 8 stories...','Escrevendo a legenda do feed e roteiro do Reels...','Montando seu checklist de execução em 24h...','Revisando tudo e finalizando sua campanha...'];
-function startLoading(){const list=document.getElementById('loading-steps-list');list.innerHTML='';loadingSteps.forEach((text,i)=>{const item=document.createElement('div');item.className='loading-step-item';item.id='step-'+i;item.innerHTML=`<div class="step-icon pending" id="icon-${i}"></div><span>${text}</span>`;list.appendChild(item);});function activateStep(i){if(i>=loadingSteps.length)return;const item=document.getElementById('step-'+i);const icon=document.getElementById('icon-'+i);item.classList.add('visible');setTimeout(()=>{item.classList.add('active');icon.className='step-icon spinning';},100);setTimeout(()=>{item.classList.remove('active');item.classList.add('done');icon.className='step-icon checked';icon.textContent='✓';activateStep(i+1);},2000);}activateStep(0);}
-async function gerarCampanha(){const r=state.respostas;const d=state.dados;const prompt=`Crie uma campanha de Dia dos Namorados para esta loja. Seja direto, use linguagem brasileira natural. Sem introduções.\n\nLOJA: ${d.nome_loja} | ${d.segmento} | ${d.cidade_estado}\nPRODUTO: ${d.produto_principal} | Preço: ${d.preco}\nCANAIS: ${d.canais_venda} | OFERTA: ${d.condicao_especial}\nOBJETIVO: ${r.objetivo} | CLIENTE: ${r.tipo_cliente}\nOFERTA: ${r.oferta} | CANAL: ${r.canal} | TOM: ${r.tom} | PRAZO: ${r.prazo}\n\nGere exatamente nesta estrutura (seja conciso em cada seção):\n\n## 🎯 Diagnóstico\n2-3 linhas sobre a estratégia ideal para essa loja.\n\n## 📛 Nome da campanha\n3 opções de nome.\n\n## 💡 Ideia central\nUma frase que guia toda a campanha.\n\n## 🎁 Oferta recomendada\n- Produto: ...\n- Condição: ...\n- Prazo: ...\n- CTA: ...\n\n## 📲 Mensagem WhatsApp\nTexto pronto para enviar para clientes (máx. 5 linhas).\n\n## 📢 Stories (5 stories)\nStory 1 - Chamar atenção: [texto]\nStory 2 - Criar desejo: [texto]\nStory 3 - Mostrar produto: [texto]\nStory 4 - Urgência: [texto]\nStory 5 - CTA: [texto]\n\n## 📝 Legenda feed\nTexto pronto com abertura, oferta e CTA (máx. 6 linhas).\n\n## 🎬 Roteiro Reels (20s)\nGancho: ...\nProblema: ...\nSolução + produto: ...\nCTA: ...\n\n## ✅ Checklist 24h\nLista de 8 ações em ordem para colocar a campanha no ar.\n\n## 🚀 Próximo passo\n1 frase orientando a lojista a enviar prints para análise da Target Commerce.`;
-try{const response=await fetch('/api/gerar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,lead:{nome:state.lead.nome,whatsapp:state.lead.whatsapp,loja:state.dados.nome_loja,segmento:state.dados.segmento,produto:state.dados.produto_principal,preco:state.dados.preco,cidade:state.dados.cidade_estado,instagram:state.dados.instagram||'',objetivo:state.respostas.objetivo,produto_tipo:state.respostas.produto_tipo,tipo_cliente:state.respostas.tipo_cliente,trava:state.respostas.trava,oferta:state.respostas.oferta,canal:state.respostas.canal,prazo:state.respostas.prazo,tom:state.respostas.tom}})});let data;try{data=await response.json();}catch(e){throw new Error('Resposta inválida do servidor. Tente novamente.');}if(!response.ok||data.error){throw new Error(data.error||'Erro ao gerar campanha.');}const text=data.result||'';if(!text)throw new Error('Campanha vazia. Tente novamente.');state.resultText=text;setTimeout(()=>{renderResult(text);goTo('screen-result');},800);}catch(err){console.error(err);alert('Não foi possível gerar a campanha: '+err.message+'\n\nTente novamente.');goTo('screen-dados');}}
+
+function startLoading(){
+  const list=document.getElementById('loading-steps-list');
+  list.innerHTML='';
+  loadingSteps.forEach((text,i)=>{
+    const item=document.createElement('div');
+    item.className='loading-step-item';
+    item.id='step-'+i;
+    item.innerHTML=`<div class="step-icon pending" id="icon-${i}"></div><span>${text}</span>`;
+    list.appendChild(item);
+  });
+  function activateStep(i){
+    if(i>=loadingSteps.length)return;
+    const item=document.getElementById('step-'+i);
+    const icon=document.getElementById('icon-'+i);
+    item.classList.add('visible');
+    setTimeout(()=>{item.classList.add('active');icon.className='step-icon spinning';},100);
+    setTimeout(()=>{item.classList.remove('active');item.classList.add('done');icon.className='step-icon checked';icon.textContent='✓';activateStep(i+1);},2000);
+  }
+  activateStep(0);
+}
+
+async function gerarCampanha(){
+  const r=state.respostas;const d=state.dados;
+  const prompt=`Crie uma campanha de Dia dos Namorados para esta loja. Seja direto, use linguagem brasileira natural. Sem introduções.\n\nLOJA: ${d.nome_loja} | ${d.segmento} | ${d.cidade_estado}\nPRODUTO: ${d.produto_principal} | Preço: ${d.preco}\nCANAIS: ${d.canais_venda} | OFERTA: ${d.condicao_especial}\nOBJETIVO: ${r.objetivo} | CLIENTE: ${r.tipo_cliente}\nOFERTA: ${r.oferta} | CANAL: ${r.canal} | TOM: ${r.tom} | PRAZO: ${r.prazo}\n\nGere exatamente nesta estrutura (seja conciso em cada seção):\n\n## 🎯 Diagnóstico\n2-3 linhas sobre a estratégia ideal para essa loja.\n\n## 📛 Nome da campanha\n3 opções de nome.\n\n## 💡 Ideia central\nUma frase que guia toda a campanha.\n\n## 🎁 Oferta recomendada\n- Produto: ...\n- Condição: ...\n- Prazo: ...\n- CTA: ...\n\n## 📲 Mensagem WhatsApp\nTexto pronto para enviar para clientes (máx. 5 linhas).\n\n## 📢 Stories (5 stories)\nStory 1 - Chamar atenção: [texto]\nStory 2 - Criar desejo: [texto]\nStory 3 - Mostrar produto: [texto]\nStory 4 - Urgência: [texto]\nStory 5 - CTA: [texto]\n\n## 📝 Legenda feed\nTexto pronto com abertura, oferta e CTA (máx. 6 linhas).\n\n## 🎬 Roteiro Reels (20s)\nGancho: ...\nProblema: ...\nSolução + produto: ...\nCTA: ...\n\n## ✅ Checklist 24h\nLista de 8 ações em ordem para colocar a campanha no ar.\n\n## 🚀 Próximo passo\n1 frase orientando a lojista a enviar prints para análise da Target Commerce.`;
+  try{
+    const response=await fetch('/api/gerar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+      prompt,
+      lead:{
+        nome:state.lead.nome,
+        whatsapp:state.lead.whatsapp,
+        loja:state.dados.nome_loja,
+        segmento:state.dados.segmento,
+        produto:state.dados.produto_principal,
+        preco:state.dados.preco,
+        cidade:state.dados.cidade_estado,
+        instagram:state.dados.instagram||'',
+        objetivo:state.respostas.objetivo,
+        produto_tipo:state.respostas.produto_tipo,
+        tipo_cliente:state.respostas.tipo_cliente,
+        faturamento_atual:state.respostas.faturamento_atual,
+        trava:state.respostas.trava,
+        oferta:state.respostas.oferta,
+        canal:state.respostas.canal,
+        prazo:state.respostas.prazo,
+        objetivo_faturamento:state.respostas.objetivo_faturamento,
+        tom:state.respostas.tom
+      }
+    })});
+    let data;
+    try{data=await response.json();}catch(e){throw new Error('Resposta inválida do servidor. Tente novamente.');}
+    if(!response.ok||data.error){throw new Error(data.error||'Erro ao gerar campanha.');}
+    const text=data.result||'';
+    if(!text)throw new Error('Campanha vazia. Tente novamente.');
+    state.resultText=text;
+    setTimeout(()=>{renderResult(text);goTo('screen-result');},800);
+  }catch(err){console.error(err);alert('Não foi possível gerar a campanha: '+err.message+'\n\nTente novamente.');goTo('screen-dados');}
+}
+
 function renderResult(text){const el=document.getElementById('result-content');let html=text.replace(/^# (.+)$/gm,'<h1>$1</h1>').replace(/^## (.+)$/gm,'<h2>$1</h2>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/^[\*\-] (.+)$/gm,'<li>$1</li>').replace(/^(\d+)\. (.+)$/gm,'<li>$2</li>').replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>');el.innerHTML='<p>'+html+'</p>';}
-function salvarLead(){const payload={nome:state.lead.nome,whatsapp:state.lead.whatsapp,loja:state.dados.nome_loja,segmento:state.dados.segmento,canal:state.respostas.canal,objetivo:state.respostas.objetivo,data:new Date().toISOString()};const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbwzuJkrIauNWllDv7o_dsNNVSoz2-dlVAOuJZ6duHgm0RMtX-cceVB--IiwnFR281k0/exec';if(WEBHOOK_URL!=='COLE_AQUI_URL_DO_MAKE_WEBHOOK'){fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});}}
+
+function salvarLead(){
+  const payload={nome:state.lead.nome,whatsapp:state.lead.whatsapp,loja:state.dados.nome_loja,segmento:state.dados.segmento,canal:state.respostas.canal,objetivo:state.respostas.objetivo,data:new Date().toISOString()};
+  const WEBHOOK_URL='https://script.google.com/macros/s/AKfycbwzuJkrIauNWllDv7o_dsNNVSoz2-dlVAOuJZ6duHgm0RMtX-cceVB--IiwnFR281k0/exec';
+  if(WEBHOOK_URL!=='COLE_AQUI_URL_DO_MAKE_WEBHOOK'){fetch(WEBHOOK_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});}
+}
+
 function copyCampanha(){navigator.clipboard.writeText(state.resultText).then(()=>{const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);});}
+
 function openWpp(){const numero='5521981909529';const msg=encodeURIComponent(`Oi, gerei minha campanha gratuita pela Campanha 24h IA para ${state.dados.nome_loja||'minha loja'} e quero saber como receber uma análise da Target Commerce.`);window.open(`https://wa.me/${numero}?text=${msg}`,'_blank');}
+
 function resetApp(){state.lead={nome:'',whatsapp:''};state.respostas={};state.dados={};state.resultText='';currentQ=0;selectedOption=null;document.getElementById('lead-nome').value='';document.getElementById('lead-whatsapp').value='';document.getElementById('result-content').textContent='Gerando...';}
 </script>
 </body>
