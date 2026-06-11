@@ -33,16 +33,13 @@ module.exports = async function handler(req, res) {
     }
 
     const data = await response.json();
-
-    if (data.error) {
-      return res.status(500).json({ error: data.error.message });
-    }
+    if (data.error) return res.status(500).json({ error: data.error.message });
 
     const text = data.content?.[0]?.text || '';
 
-    // Salvar lead na planilha pelo servidor (evita CORS)
+    // Salvar lead na planilha pelo servidor
     if (lead) {
-      const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwzuJkrIauNWllDv7o_dsNNVSoz2-dlVAOuJZ6duHgm0RMtX-cceVB--IiwnFR281k0/exec';
+      const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyam77xIj44rbj_y5CgpnAUVqMHuPc8dNshlkq5mfoeYZMqAGNQm5-EAqX-tw9cyLud/exec';
       try {
         await fetch(SHEETS_URL, {
           method: 'POST',
@@ -53,9 +50,18 @@ module.exports = async function handler(req, res) {
             whatsapp: lead.whatsapp || '',
             loja: lead.loja || '',
             segmento: lead.segmento || '',
-            canal: lead.canal || '',
+            produto: lead.produto || '',
+            preco: lead.preco || '',
+            cidade: lead.cidade || '',
+            instagram: lead.instagram || '',
             objetivo: lead.objetivo || '',
-            instagram: lead.instagram || ''
+            produto_tipo: lead.produto_tipo || '',
+            tipo_cliente: lead.tipo_cliente || '',
+            trava: lead.trava || '',
+            oferta: lead.oferta || '',
+            canal: lead.canal || '',
+            prazo: lead.prazo || '',
+            tom: lead.tom || ''
           })
         });
       } catch(e) {
