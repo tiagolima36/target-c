@@ -702,32 +702,27 @@ function renderQuestion() {
 
   const grid = document.getElementById('q-options');
   grid.innerHTML = '';
-  q.options.forEach((opt, i) => {
+  selectedOption = null;
+
+  q.options.forEach((opt) => {
     const btn = document.createElement('button');
     btn.className = 'option-card';
     btn.textContent = opt;
-    if (state.respostas[q.key] === opt) {
-      btn.classList.add('selected');
-      selectedOption = opt;
-      document.getElementById('btn-next').disabled = false;
-    }
     btn.addEventListener('click', () => {
       document.querySelectorAll('.option-card').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedOption = opt;
       state.respostas[perguntas[currentQ].key] = opt;
-      document.getElementById('btn-next').disabled = false;
-      // Avança automaticamente após 350ms
-      setTimeout(() => { nextQuestion(); }, 350);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setTimeout(() => { nextQuestion(); }, 420);
     });
     grid.appendChild(btn);
   });
 
-  if (!state.respostas[q.key]) {
-    selectedOption = null;
-    document.getElementById('btn-next').disabled = true;
-  document.getElementById('btn-back').style.display = currentQ === 0 ? 'none' : 'block';
-  }
+  const btnNext = document.getElementById('btn-next');
+  const btnBack = document.getElementById('btn-back');
+  btnNext.disabled = false;
+  btnBack.style.display = currentQ === 0 ? 'none' : 'block';
 }
 
 function nextQuestion() {
