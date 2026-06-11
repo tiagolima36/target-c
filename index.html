@@ -851,75 +851,55 @@ async function gerarCampanha() {
   const r = state.respostas;
   const d = state.dados;
 
-  const prompt = `Você é um estrategista de campanhas para lojas físicas, e-commerces e marcas que vendem por Instagram, WhatsApp, site ou loja física.
+  const prompt = `Crie uma campanha de Dia dos Namorados para esta loja. Seja direto, use linguagem brasileira natural. Sem introduções.
 
-Sua tarefa é criar uma campanha pronta para o Dia dos Namorados com base nas respostas da lojista.
+LOJA: ${d.nome_loja} | ${d.segmento} | ${d.cidade_estado}
+PRODUTO: ${d.produto_principal} | Preço: ${d.preco}
+CANAIS: ${d.canais_venda} | OFERTA: ${d.condicao_especial}
+OBJETIVO: ${r.objetivo} | CLIENTE: ${r.tipo_cliente}
+OFERTA: ${r.oferta} | CANAL: ${r.canal} | TOM: ${r.tom} | PRAZO: ${r.prazo}
 
-A campanha precisa ser simples, prática, direta e possível de executar em até 24 horas.
+Gere exatamente nesta estrutura (seja conciso em cada seção):
 
-Não escreva de forma genérica. Use as informações da loja, do produto, do público, da oferta, do canal principal e do tom escolhido.
+## 🎯 Diagnóstico
+2-3 linhas sobre a estratégia ideal para essa loja.
 
-Use linguagem natural, brasileira, persuasiva e fácil de aplicar. Evite termos técnicos.
+## 📛 Nome da campanha
+3 opções de nome.
 
-A saída deve seguir exatamente esta estrutura:
+## 💡 Ideia central
+Uma frase que guia toda a campanha.
 
-# Sua Campanha 24h IA
+## 🎁 Oferta recomendada
+- Produto: ...
+- Condição: ...
+- Prazo: ...
+- CTA: ...
 
-## 1. Diagnóstico rápido
-Explique em poucas linhas qual estratégia faz mais sentido com base nas respostas.
+## 📲 Mensagem WhatsApp
+Texto pronto para enviar para clientes (máx. 5 linhas).
 
-## 2. Nome da campanha
-Crie 3 opções de nome para a campanha.
+## 📢 Stories (5 stories)
+Story 1 - Chamar atenção: [texto]
+Story 2 - Criar desejo: [texto]
+Story 3 - Mostrar produto: [texto]
+Story 4 - Urgência: [texto]
+Story 5 - CTA: [texto]
 
-## 3. Ideia central da campanha
-Crie uma frase simples que guie toda a campanha.
+## 📝 Legenda feed
+Texto pronto com abertura, oferta e CTA (máx. 6 linhas).
 
-## 4. Oferta recomendada
-Organize: produto principal, condição especial, prazo, escassez, motivo para comprar agora, CTA principal.
+## 🎬 Roteiro Reels (20s)
+Gancho: ...
+Problema: ...
+Solução + produto: ...
+CTA: ...
 
-## 5. Mensagem de convite para WhatsApp
-Crie uma mensagem pronta para enviar para clientes antigas, pessoas que perguntaram e sumiram e pessoas que interagiram com a loja.
+## ✅ Checklist 24h
+Lista de 8 ações em ordem para colocar a campanha no ar.
 
-## 6. Texto para grupo ou lista VIP
-Crie: convite para entrar no grupo/lista, primeira mensagem dentro do grupo, mensagem de aquecimento, mensagem de abertura da venda.
-
-## 7. Sequência de 8 stories
-Crie 8 stories com texto pronto. Funções: Story 1 chamar atenção, Story 2 criar identificação, Story 3 mostrar problema, Story 4 apresentar oportunidade, Story 5 mostrar produto/oferta, Story 6 criar desejo, Story 7 criar urgência, Story 8 CTA.
-
-## 8. Legenda para feed
-Crie uma legenda pronta com abertura forte, contexto, oferta, urgência e CTA.
-
-## 9. Roteiro de Reels
-Crie um roteiro simples para vídeo de 15 a 30 segundos com: gancho inicial, problema, solução, produto, CTA.
-
-## 10. Checklist de execução em 24h
-Crie uma lista prática do que a lojista deve fazer em ordem.
-
-## 11. Próximo passo
-Finalize orientando a lojista a implementar e enviar prints para análise da Target Commerce.
-
----
-
-Respostas da lojista:
-Objetivo: ${r.objetivo}
-Produto: ${r.produto_tipo}
-Tipo de cliente: ${r.tipo_cliente}
-Maior trava: ${r.trava}
-Tipo de oferta: ${r.oferta}
-Canal principal: ${r.canal}
-Prazo: ${r.prazo}
-Tom: ${r.tom}
-
-Dados da loja:
-Nome: ${d.nome_loja}
-Segmento: ${d.segmento}
-Produto principal: ${d.produto_principal}
-Preço: ${d.preco}
-Cidade: ${d.cidade_estado}
-Canais: ${d.canais_venda}
-Condição especial: ${d.condicao_especial}
-Instagram: ${d.instagram}
-Observações: ${d.observacoes}`;
+## 🚀 Próximo passo
+1 frase orientando a lojista a enviar prints para análise da Target Commerce.`;
 
   try {
     const response = await fetch('/api/gerar', {
