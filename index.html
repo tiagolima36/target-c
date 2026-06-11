@@ -905,7 +905,18 @@ Lista de 8 ações em ordem para colocar a campanha no ar.
     const response = await fetch('/api/gerar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt })
+      body: JSON.stringify({
+        prompt,
+        lead: {
+          nome: state.lead.nome,
+          whatsapp: state.lead.whatsapp,
+          loja: state.dados.nome_loja,
+          segmento: state.dados.segmento,
+          canal: state.respostas.canal,
+          objetivo: state.respostas.objetivo,
+          instagram: state.dados.instagram || ''
+        }
+      })
     });
 
     let data;
@@ -928,7 +939,7 @@ Lista de 8 ações em ordem para colocar a campanha no ar.
     setTimeout(() => {
       renderResult(text);
       goTo('screen-result');
-      salvarLead();
+      // Lead salvo pelo servidor em gerar.js
     }, 800);
 
   } catch (err) {
