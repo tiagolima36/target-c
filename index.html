@@ -236,36 +236,60 @@
   .field .optional { font-size: 11px; color: var(--gray-400); font-weight: 400; margin-left: 4px; }
 
   /* ===== LOADING ===== */
-  .loading-wrap {
-    flex: 1; display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 40px 20px; text-align: center;
-  }
-  .loading-icon {
-    width: 72px; height: 72px;
-    border: 4px solid var(--orange-mid);
-    border-top-color: var(--orange);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 32px;
-  }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  .loading-step {
-    font-size: 16px; font-weight: 600; color: var(--gray-900);
-    min-height: 48px; display: flex; align-items: center; justify-content: center;
-    transition: opacity 0.5s ease;
+  .loading-wrap {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    padding: 36px 24px 40px;
   }
-  .loading-progress {
-    width: 200px; height: 4px; background: var(--gray-200);
-    border-radius: 99px; margin-top: 24px; overflow: hidden;
+  .loading-header {
+    text-align: center; margin-bottom: 28px; width: 100%;
   }
-  .loading-fill {
-    height: 100%; background: var(--orange); border-radius: 99px;
-    width: 0%; transition: width 0.8s ease;
+  .loading-spinner {
+    width: 44px; height: 44px;
+    border: 3px solid var(--orange-mid);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+    margin: 0 auto 14px;
   }
-  .loading-label {
-    font-size: 12px; color: var(--gray-400); margin-top: 10px;
+  .loading-title {
+    font-size: 18px; font-weight: 800; color: var(--gray-900); margin-bottom: 4px;
+  }
+  .loading-subtitle {
+    font-size: 13px; color: var(--gray-600);
+  }
+  .loading-steps-list {
+    width: 100%; display: flex; flex-direction: column; gap: 4px;
+  }
+  .loading-step-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 14px; border-radius: var(--radius-sm);
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.4s ease, background 0.3s ease;
+    font-size: 14px; font-weight: 500; color: var(--gray-400);
+  }
+  .loading-step-item.visible { opacity: 1; transform: translateY(0); }
+  .loading-step-item.active {
+    background: var(--orange-light); color: var(--orange); font-weight: 600;
+  }
+  .loading-step-item.done { color: var(--gray-700); }
+  .step-icon {
+    width: 24px; height: 24px; min-width: 24px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+  }
+  .step-icon.pending {
+    border: 2px solid var(--gray-300); background: white;
+  }
+  .step-icon.spinning {
+    border: 2px solid var(--orange-mid);
+    border-top-color: var(--orange);
+    animation: spin 0.8s linear infinite;
+  }
+  .step-icon.checked {
+    background: var(--orange); border: 2px solid var(--orange); color: white;
   }
 
   /* ===== RESULT ===== */
@@ -480,10 +504,12 @@
 <div class="screen" id="screen-loading">
   <div class="container">
     <div class="loading-wrap">
-      <div class="loading-icon"></div>
-      <div class="loading-step" id="loading-step">Analisando sua loja...</div>
-      <div class="loading-progress"><div class="loading-fill" id="loading-fill"></div></div>
-      <div class="loading-label">Gerando campanha personalizada</div>
+      <div class="loading-header">
+        <div class="loading-spinner"></div>
+        <div class="loading-title">Criando sua campanha...</div>
+        <div class="loading-subtitle">Personalizando cada detalhe para sua loja</div>
+      </div>
+      <div class="loading-steps-list" id="loading-steps-list"></div>
     </div>
   </div>
 </div>
@@ -731,30 +757,59 @@ function submitDados() {
 
 // ===== LOADING =====
 const loadingSteps = [
-  'Analisando o objetivo da sua campanha...',
+  'Lendo as respostas da sua loja...',
   'Escolhendo o melhor ângulo de venda...',
-  'Criando sua sequência de stories...',
-  'Montando sua mensagem de WhatsApp...',
-  'Organizando seu checklist de 24h...',
-  'Preparando sua campanha final...'
+  'Montando a oferta ideal para o Dia dos Namorados...',
+  'Escrevendo a mensagem pro cliente que parou de responder...',
+  'Criando sua sequência de 8 stories...',
+  'Escrevendo a legenda do feed e roteiro do Reels...',
+  'Montando seu checklist de execução em 24h...',
+  'Revisando tudo e finalizando sua campanha...'
 ];
 
-function startLoading() {
-  let i = 0;
-  const stepEl = document.getElementById('loading-step');
-  const fillEl = document.getElementById('loading-fill');
-  stepEl.textContent = loadingSteps[0];
-  fillEl.style.width = '10%';
+let loadingInterval = null;
 
-  const interval = setInterval(() => {
-    i++;
-    if (i < loadingSteps.length) {
-      stepEl.textContent = loadingSteps[i];
-      fillEl.style.width = ((i + 1) / loadingSteps.length * 90) + '%';
-    } else {
-      clearInterval(interval);
-    }
-  }, 2200);
+function startLoading() {
+  const list = document.getElementById('loading-steps-list');
+  list.innerHTML = '';
+
+  // Criar todos os itens já no DOM, invisíveis
+  loadingSteps.forEach((text, i) => {
+    const item = document.createElement('div');
+    item.className = 'loading-step-item';
+    item.id = 'step-' + i;
+    item.innerHTML = `<div class="step-icon pending" id="icon-${i}"></div><span>${text}</span>`;
+    list.appendChild(item);
+  });
+
+  let current = 0;
+
+  function activateStep(i) {
+    if (i >= loadingSteps.length) return;
+
+    const item = document.getElementById('step-' + i);
+    const icon = document.getElementById('icon-' + i);
+
+    // Mostrar item
+    item.classList.add('visible');
+
+    // Pequeno delay pra aparecer antes de ativar
+    setTimeout(() => {
+      item.classList.add('active');
+      icon.className = 'step-icon spinning';
+    }, 100);
+
+    // Após 2s, marcar como done e ir pro próximo
+    setTimeout(() => {
+      item.classList.remove('active');
+      item.classList.add('done');
+      icon.className = 'step-icon checked';
+      icon.textContent = '✓';
+      activateStep(i + 1);
+    }, 2000);
+  }
+
+  activateStep(0);
 }
 
 // ===== GERAR CAMPANHA =====
